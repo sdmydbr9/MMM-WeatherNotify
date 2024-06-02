@@ -3,7 +3,7 @@
 /* MagicMirror²
  * Module: MMM-WeatherNotify
  *
- * By [Your Name]
+ * By sudhamoy
  * MIT Licensed.
  */
 
