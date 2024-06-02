@@ -7,6 +7,9 @@
  * MIT Licensed.
  */
 
+const fs = require('fs');
+const path = require('path');
+
 Module.register("MMM-WeatherNotify", {
   // Default module configuration.
   defaults: {
@@ -15,16 +18,19 @@ Module.register("MMM-WeatherNotify", {
     alertTitle: "Weather Alert",
     alertClass: "dimmed medium",
     notificationTitle: "Weather Alert Notification",
+    logFile: "weather_notify_log.txt" // Log file name
   },
 
   // Override start method to set up initial state.
   start: function () {
-    Log.info("Starting module: " + this.name);
+    this.log("Starting module: " + this.name);
+    this.sendSocketNotification("MMM-WEATHERNOTIFY_STARTED");
   },
 
   // Override notification handler.
   notificationReceived: function (notification, payload, sender) {
     if (notification === "WEATHER_ALERTS_UPDATED") {
+      this.log("Received WEATHER_ALERTS_UPDATED notification");
       this.sendWeatherAlert(payload);
     }
   },
@@ -49,6 +55,8 @@ Module.register("MMM-WeatherNotify", {
       timer: this.config.alertDuration,
       alertClass: this.config.alertClass,
     });
+
+    this.log(`Sent alert: ${alertTitle} - ${alertContent}`);
   },
 
   // Send a notification with the weather alert details.
@@ -60,6 +68,8 @@ Module.register("MMM-WeatherNotify", {
       body: notificationContent,
       icon: "modules/MMM-WeatherNotify/weather-icon.png", // Optional: Add your custom icon
     });
+
+    this.log(`Sent notification: ${notificationTitle} - ${notificationContent}`);
   },
 
   // Format the alert content.
@@ -83,5 +93,18 @@ Module.register("MMM-WeatherNotify", {
   // This module doesn't need to display any content.
   getDom: function () {
     return document.createElement("div");
+  },
+
+  // Log messages to a file for debugging.
+  log: function (message) {
+    const logFilePath = path.join(__dirname, this.config.logFile);
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] ${message}\n`;
+
+    fs.appendFile(logFilePath, logMessage, (err) => {
+      if (err) {
+        console.error("Failed to write log:", err);
+      }
+    });
   },
 });
