@@ -7,9 +7,6 @@
  * MIT Licensed.
  */
 
-const fs = require('fs');
-const path = require('path');
-
 Module.register("MMM-WeatherNotify", {
   // Default module configuration.
   defaults: {
@@ -18,13 +15,11 @@ Module.register("MMM-WeatherNotify", {
     alertTitle: "Weather Alert",
     alertClass: "dimmed medium",
     notificationTitle: "Weather Alert Notification",
-    logFile: "weather_notify_log.txt" // Log file name
   },
 
   // Override start method to set up initial state.
   start: function () {
     this.log("Starting module: " + this.name);
-    this.sendSocketNotification("MMM-WEATHERNOTIFY_STARTED");
   },
 
   // Override notification handler.
@@ -40,7 +35,7 @@ Module.register("MMM-WeatherNotify", {
     if (this.config.notificationType === "alert") {
       this.sendAlert(payload);
     } else if (this.config.notificationType === "notification") {
-      this.sendNotification(payload);
+      this.sendBrowserNotification(payload);
     }
   },
 
@@ -59,8 +54,8 @@ Module.register("MMM-WeatherNotify", {
     this.log(`Sent alert: ${alertTitle} - ${alertContent}`);
   },
 
-  // Send a notification with the weather alert details.
-  sendNotification: function (payload) {
+  // Send a browser notification with the weather alert details.
+  sendBrowserNotification: function (payload) {
     const notificationTitle = this.config.notificationTitle;
     const notificationContent = this.formatAlertContent(payload);
 
@@ -95,16 +90,8 @@ Module.register("MMM-WeatherNotify", {
     return document.createElement("div");
   },
 
-  // Log messages to a file for debugging.
+  // Log messages to the Node helper for debugging.
   log: function (message) {
-    const logFilePath = path.join(__dirname, this.config.logFile);
-    const timestamp = new Date().toISOString();
-    const logMessage = `[${timestamp}] ${message}\n`;
-
-    fs.appendFile(logFilePath, logMessage, (err) => {
-      if (err) {
-        console.error("Failed to write log:", err);
-      }
-    });
+    this.sendSocketNotification("LOG_MESSAGE", message);
   },
 });
