@@ -16,25 +16,37 @@ Module.register("MMM-WeatherNotify", {
     alertClass: "dimmed medium",
     notificationTitle: "Weather Alert Notification",
     checkInterval: 60000, // Check for new alerts every 1 minute (in ms)
-    initialDelay: 300000, // Initial delay of 5 minutes (in ms)
   },
 
   // Override start method to set up initial state.
   start: function () {
     this.log("Starting module: " + this.name);
     this.alertsSent = [];
-    this.initialCheckScheduled = false;
+    this.startupComplete = false;
+
+    // Schedule the first check immediately
+    this.scheduleNextCheck();
+
+    // Mark startup as complete after the first check interval
     setTimeout(() => {
-      this.initialCheckScheduled = true;
-      this.scheduleNextCheck();
-    }, this.config.initialDelay);
+      this.startupComplete = true;
+    }, this.config.checkInterval);
   },
 
   // Override notification handler.
   notificationReceived: function (notification, payload, sender) {
-    if (notification === "WEATHER_ALERTS_UPDATED" && this.initialCheckScheduled) {
+    if (notification === "WEATHER_ALERTS_UPDATED") {
       this.log("Received WEATHER_ALERTS_UPDATED notification");
-      this.handleWeatherAlertUpdate(payload);
+
+      // If in startup phase, wait for 60 seconds before handling alert
+      if (!this.startupComplete) {
+        this.log("In startup phase, delaying alert handling by 60 seconds");
+        setTimeout(() => {
+          this.handleWeatherAlertUpdate(payload);
+        }, 60000);
+      } else {
+        this.handleWeatherAlertUpdate(payload);
+      }
     }
   },
 
