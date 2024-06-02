@@ -69,20 +69,9 @@ Module.register("MMM-WeatherNotify", {
 
   // Format the alert content.
   formatAlertContent: function (payload) {
-    let content = "Weather Alerts:\n";
+    let content = "There is a new weather alert for your area, it says: ";
     if (payload.currentWeatherAlerts.length > 0) {
-      payload.currentWeatherAlerts.forEach((alert, index) => {
-        const start = alert.start ? new Date(alert.start * 1000).toLocaleString() : "N/A";
-        const end = alert.end ? new Date(alert.end * 1000).toLocaleString() : "N/A";
-        const severity = alert.severity || "N/A";
-
-        content += `\nAlert ${index + 1}:\n`;
-        content += `Title: ${alert.event}\n`;
-        content += `Description: ${alert.description}\n`;
-        content += `Start: ${start}\n`;
-        content += `End: ${end}\n`;
-        content += `Severity: ${severity}\n`;
-      });
+      content += payload.currentWeatherAlerts[0].description;
     } else {
       content += "No active alerts.";
     }
