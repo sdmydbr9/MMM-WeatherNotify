@@ -3,7 +3,7 @@
 /* MagicMirror²
  * Module: MMM-WeatherNotify
  *
- * By sudhamoy
+ * By [Your Name]
  * MIT Licensed.
  */
 
@@ -15,12 +15,11 @@ Module.register("MMM-WeatherNotify", {
     alertTitle: "Weather Alert",
     alertClass: "dimmed medium",
     notificationTitle: "Weather Alert Notification",
-    notificationType: "basic",
   },
 
-  // Required styles for the module.
-  getStyles: function () {
-    return ["MMM-WeatherNotify.css"];
+  // Override start method to set up initial state.
+  start: function () {
+    Log.info("Starting module: " + this.name);
   },
 
   // Override notification handler.
@@ -79,5 +78,10 @@ Module.register("MMM-WeatherNotify", {
       content += "No active alerts.";
     }
     return content;
+  },
+
+  // This module doesn't need to display any content.
+  getDom: function () {
+    return document.createElement("div");
   },
 });
