@@ -23,14 +23,16 @@ Module.register("MMM-WeatherNotify", {
   start: function () {
     this.log("Starting module: " + this.name);
     this.alertsSent = [];
+    this.initialCheckScheduled = false;
     setTimeout(() => {
+      this.initialCheckScheduled = true;
       this.scheduleNextCheck();
     }, this.config.initialDelay);
   },
 
   // Override notification handler.
   notificationReceived: function (notification, payload, sender) {
-    if (notification === "WEATHER_ALERTS_UPDATED") {
+    if (notification === "WEATHER_ALERTS_UPDATED" && this.initialCheckScheduled) {
       this.log("Received WEATHER_ALERTS_UPDATED notification");
       this.handleWeatherAlertUpdate(payload);
     }
